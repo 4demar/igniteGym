@@ -1,10 +1,10 @@
 import React from 'react';
-import { StatusBar, View } from 'react-native';
+import { StatusBar } from 'react-native';
 import { useFonts, Roboto_400Regular, Roboto_700Bold } from '@expo-google-fonts/roboto'
-import { GluestackUIProvider, Center, Text } from '@gluestack-ui/themed';
+import { GluestackUIProvider } from '@gluestack-ui/themed';
 import { config } from './config/gluestack-ui.config';
 import { Loading } from '@components/Loading';
-import { Login } from '@screens/cadastro/login';
+import { Routes } from '@routes/index';
 
 export default function App() {
 
@@ -13,19 +13,12 @@ export default function App() {
 
   return (
     <GluestackUIProvider config={config}>
-
-
       <StatusBar
         barStyle='light-content'
         backgroundColor='transparent'
         translucent
       />
-      {fontsLoaded
-        ?
-        <Login />
-        :
-        <Loading />}
-
+      {fontsLoaded ? <Routes /> : <Loading />}
     </GluestackUIProvider>
   );
 }
