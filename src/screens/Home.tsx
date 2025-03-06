@@ -6,8 +6,8 @@ import { Heading, HStack, VStack, Text } from "@gluestack-ui/themed";
 import { CardExercicio } from "@components/CardExercicio";
 
 type exercicio = {
-  titulo: string
-  subTitulo: string
+  nomeExercicio: string
+  execucao: string
 }
 
 export function Home() {
@@ -23,7 +23,7 @@ export function Home() {
         data={listaGrupoMuscular}
         keyExtractor={item => item}
         renderItem={({ item }) => (
-          <GrupoMuscular nome={item} ativo={grupoSelecionado === item} onPress={() => setGrupoSelecionado(item)} />
+          <GrupoMuscular nome={item} ativo={grupoSelecionado.toLowerCase() === item.toLowerCase()} onPress={() => setGrupoSelecionado(item)} />
         )}
         horizontal
         showsHorizontalScrollIndicator={false}
