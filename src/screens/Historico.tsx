@@ -3,12 +3,18 @@ import { Header } from "@components/Header";
 import { Heading, Text, VStack } from "@gluestack-ui/themed";
 import { useState } from "react";
 import { SectionList } from "react-native";
-import { IExercicio } from "../interfaces";
 
 type ILista = {
   title: string
   data: string[]
 }
+
+export type IDelathes = {
+  tipo: string
+  nome: string
+  duracao: string
+}
+
 
 export function Historico() {
   const [listaExercicios, setListaExercicios] = useState<ILista[]>([

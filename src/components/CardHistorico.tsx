@@ -1,9 +1,8 @@
 import { Heading, HStack, VStack, Text } from "@gluestack-ui/themed";
-import { SectionList } from 'react-native'
-import { IExercicio } from "../interfaces";
+import { IDelathes } from "@screens/Historico";
 
 type props = {
-  exercicio: IExercicio
+  exercicio: IDelathes
 }
 
 export function CardHistorico({ exercicio }: props) {
@@ -18,12 +17,13 @@ export function CardHistorico({ exercicio }: props) {
       alignItems="center"
       justifyContent="space-between"
     >
-      <VStack mr="$5">
+      <VStack mr="$5" flex={1}>
         <Heading
           color="$white"
           fontSize="$md"
           fontFamily="$heading"
           textTransform="capitalize"
+          numberOfLines={1}
         >
           {exercicio.tipo}
         </Heading>

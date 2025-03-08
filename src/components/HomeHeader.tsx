@@ -12,7 +12,7 @@ export function HomeHeader({ nomeUsuario }: props) {
 
   return (
     <HStack bg='$gray600' pt='$16' pb='$5' px='$8' alignItems="center" gap='$4'>
-      <FotoUsuario source={{ uri: 'http://github.com/4demar.pngx' }} alt='imagem do usuario' w='$16' h='$16' />
+      <FotoUsuario source={{ uri: 'http://github.com/4demar.png' }} alt='imagem do usuario' w='$16' h='$16' />
       <VStack flex={1}>
         <Text color='$gray100' fontSize='$sm'>Olá, </Text>
         <Heading color='$gray100' fontSize='$md'>{nomeUsuario}</Heading>

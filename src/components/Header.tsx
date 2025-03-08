@@ -7,8 +7,8 @@ type props = {
 export function Header({ titulo }: props) {
 
   return (
-    <Center bg='$gray300' paddingVertical='$10'>
-      <Heading color='$gray100' fontSize='$xl' fontFamily="$heading" mt='$8'>
+    <Center bg='$gray600' paddingVertical='$6'>
+      <Heading color='$gray100' fontSize='$xl' fontFamily="$heading" mt='$10'>
         {titulo}
       </Heading>
     </Center>

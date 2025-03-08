@@ -4,16 +4,19 @@ import { GrupoMuscular } from "@components/GrupoMuscular";
 import { HomeHeader } from "@components/HomeHeader";
 import { Heading, HStack, VStack, Text } from "@gluestack-ui/themed";
 import { CardExercicio } from "@components/CardExercicio";
+import { useNavigation } from "@react-navigation/native";
+import { AppRoutesNavigator } from "@routes/appRoutes";
 
-type exercicio = {
-  nomeExercicio: string
-  execucao: string
-}
 
 export function Home() {
   const [listaExercicios, setListaExercicios] = useState(['Puxada Frontal', 'Remada curvada', 'Levantamento terra', 'teste', 'teste2', 'teste3'])
   const [listaGrupoMuscular, setListaGrupoMuscular] = useState(['bíceps', 'costa', 'gluteo', 'ombro', 'perna', 'tríceps'])
   const [grupoSelecionado, setGrupoSelecionado] = useState('costa')
+  const navigator = useNavigation<AppRoutesNavigator>()
+
+  const handleAbrirExercicio = (exercicio: string) => {
+    navigator.navigate('exercicio', { nomeExercicio: exercicio })
+  }
 
   return (
     <VStack flex={1}>
@@ -41,7 +44,7 @@ export function Home() {
           data={listaExercicios}
           keyExtractor={item => item}
           renderItem={({ item }) => (
-            <CardExercicio nomeExercicio={item} />
+            <CardExercicio nomeExercicio={item} onPress={() => handleAbrirExercicio(item)} />
           )}
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingBottom: 20 }}
