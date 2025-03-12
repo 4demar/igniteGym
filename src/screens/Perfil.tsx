@@ -1,14 +1,18 @@
 import { Button } from "@components/Button";
 import { FotoUsuario } from "@components/FotoUsuario";
 import { InputText } from "@components/InputText";
-import { Center, VStack, Text, Heading } from "@gluestack-ui/themed";
-import { Alert, ScrollView, TouchableOpacity } from "react-native";
+import { Center, VStack, Text, Heading, useToast } from "@gluestack-ui/themed";
+import { ScrollView, TouchableOpacity } from "react-native";
 import * as ImagePicker from 'expo-image-picker'
 import * as FileSystem from 'expo-file-system'
 import { useState } from "react";
+import { Header } from "@components/Header";
+import { ToastMessage } from "@components/ToastMessage";
 
 export function Perfil() {
   const [imagemUsuario, setImagemUsuario] = useState('http://github.com/4demar.png')
+
+  const toast = useToast()
 
   const handleSelecionarImagem = async () => {
     try {
@@ -25,8 +29,20 @@ export function Perfil() {
       const infoImagem = (await FileSystem.getInfoAsync(uriImagem) as { size: number })
 
       //conta para verificar se é maior de 5mb
-      if (infoImagem.size && (infoImagem.size / 1024 / 1024) > 5)
-        Alert.alert('Imagem selecionada', 'Imagem deve ser menor que 5 mb')
+      if (infoImagem.size && (infoImagem.size / 1024 / 1024) > 1) {
+        return toast.show({
+          placement: 'top',
+          render: ({ id }) => (
+            <ToastMessage
+              id={id}
+              title="Imagem muito grande!"
+              action="error"
+              onClose={() => toast.close(id)}
+            />
+          )
+        })
+      }
+
       setImagemUsuario(uriImagem);
     }
     catch (erro) {
@@ -36,8 +52,12 @@ export function Perfil() {
 
   return (
     <VStack flex={1}>
+      <Header titulo="Perfil" />
+
+
+
       <ScrollView contentContainerStyle={{ paddingBottom: 36 }}>
-        <Center mt='$16' px='$10'>
+        <Center mt='$6' px='$10'>
           <FotoUsuario
             source={{ uri: imagemUsuario }}
             alt='foto do usuario'

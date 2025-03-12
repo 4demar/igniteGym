@@ -4,13 +4,44 @@ import Logo from '@assets/logo.svg'
 import { InputText } from '@components/InputText';
 import { Button } from "@components/Button";
 import { useNavigation } from "@react-navigation/native";
+import * as yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+
+import { useForm, Controller } from "react-hook-form";
+
+type FormDataProps = {
+  nome: string
+  email: string
+  senha: string
+  confirmarSenha: string
+}
+
+const signUpSchema = yup.object({
+  nome: yup.string().required('informe o nome'),
+  email: yup.string().required('Informe o e-mail').email('E-mail inválido'),
+  senha: yup.string().required('informe a senha')
+    .min(6, 'A senha deve ter pelo menos 6 digitos'),
+  confirmarSenha: yup.string().required('confirme a senha')
+    .min(6, 'A senha deve ter pelo menos 6 digitos')
+    .oneOf([yup.ref('senha'), ''], 'A confirmação da senha não confere')
+});
 
 export function Cadastro() {
+
+  const { control, handleSubmit, formState: { errors } } = useForm<FormDataProps>({
+    resolver: yupResolver(signUpSchema)
+  });
+
   const navigator = useNavigation()
 
   const handleVoltar = () => {
     navigator.goBack()
   }
+
+  function handleCriarConta(data: FormDataProps) {
+    console.log(data)
+  }
+
 
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
@@ -34,11 +65,58 @@ export function Cadastro() {
 
           <Center gap='$2' flex={1}>
             <Heading color='$gray100'>Crie sua conta</Heading>
-            <InputText placeholder="Nome" />
-            <InputText placeholder="E-mail" keyboardType="email-address" autoCapitalize="none" />
-            <InputText placeholder="Senha" secureTextEntry />
-            <InputText placeholder="Confirmar Senha" secureTextEntry />
-            <Button titulo='Criar e acessar' />
+
+            <Controller
+              control={control}
+              name='nome'
+              render={({ field: { onChange, value } }) => (
+                <InputText placeholder="Nome"
+                  value={value} onChangeText={onChange}
+                  errorMessage={errors.nome?.message}
+                />
+              )}
+            />
+
+            <Controller
+              control={control}
+              name='email'
+              render={({ field: { onChange, value } }) => (
+                <InputText placeholder="E-mail" keyboardType="email-address" autoCapitalize="none"
+                  value={value} onChangeText={onChange}
+                  errorMessage={errors.email?.message}
+                />
+              )}
+            />
+
+            <Controller
+              control={control}
+              name='senha'
+              render={({ field: { onChange, value } }) => (
+                <InputText placeholder="Senha" secureTextEntry
+                  value={value} onChangeText={onChange}
+                  errorMessage={errors.senha?.message}
+                />
+              )}
+            />
+
+            <Controller
+              control={control}
+              name='confirmarSenha'
+              render={({ field: { onChange, value } }) => (
+                <InputText placeholder="Confirmar Senha" secureTextEntry
+                  value={value} onChangeText={onChange}
+                  errorMessage={errors.confirmarSenha?.message}
+                  onSubmitEditing={handleSubmit(handleCriarConta)}
+                  returnKeyType="send"
+                />
+              )}
+            />
+
+
+            <Button titulo='Criar e acessar' onPress={handleSubmit(handleCriarConta)} />
+
+
+
           </Center>
           <Button titulo='Voltar' variant='outline' mt='$12' onPress={handleVoltar} />
         </VStack>

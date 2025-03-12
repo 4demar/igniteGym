@@ -1,4 +1,4 @@
-import { VStack, Image, Center, Text, Heading, ScrollView } from "@gluestack-ui/themed";
+import { VStack, Image, Center, Text, Heading, ScrollView, Icon } from "@gluestack-ui/themed";
 import BackgroundImg from "@assets/background.png";
 import Logo from '@assets/logo.svg'
 import { InputText } from '@components/InputText';
@@ -6,13 +6,18 @@ import { Button } from "@components/Button";
 
 import { useNavigation } from "@react-navigation/native";
 import { AuthRoutesNavigator } from "@routes/authRoutes";
+import { useState } from "react";
 
 export function Login() {
+  const [email, setEmail] = useState('')
+  const [senha, setSenha] = useState('')
+
   const navigator = useNavigation<AuthRoutesNavigator>()
 
   const handleNovoCadastro = () => {
     navigator.navigate('cadastro')
   }
+
 
 
   return (
@@ -31,14 +36,20 @@ export function Login() {
           <Center my='$24'>
             <Logo />
             <Text color='$gray100'>
+
               Treine sua mente e seu corpo
             </Text>
+
           </Center>
 
           <Center gap='$2'>
             <Heading color='$gray100'>Acesse a conta</Heading>
-            <InputText placeholder="E-mail" keyboardType="email-address" autoCapitalize="none" />
-            <InputText placeholder="Senha" secureTextEntry />
+            <InputText placeholder="E-mail" keyboardType="email-address" autoCapitalize="none"
+              value={email} onChangeText={setEmail}
+            />
+            <InputText placeholder="Senha" secureTextEntry
+              value={senha} onChangeText={setSenha}
+            />
             <Button titulo='Acessar' />
           </Center>
 
