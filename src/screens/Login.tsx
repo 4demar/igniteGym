@@ -1,4 +1,4 @@
-import { VStack, Image, Center, Text, Heading, ScrollView, Icon } from "@gluestack-ui/themed";
+import { VStack, Image, Center, Text, Heading, ScrollView } from "@gluestack-ui/themed";
 import BackgroundImg from "@assets/background.png";
 import Logo from '@assets/logo.svg'
 import { InputText } from '@components/InputText';
@@ -7,17 +7,42 @@ import { Button } from "@components/Button";
 import { useNavigation } from "@react-navigation/native";
 import { AuthRoutesNavigator } from "@routes/authRoutes";
 import { useState } from "react";
+import { useAuth } from "@hooks/useAuth";
+import { Controller, useForm } from "react-hook-form";
+import { AppError } from "@utils/appError";
+import { ToastShowError } from "@components/ToastShowError";
+
+type FormData = {
+  email: string;
+  senha: string;
+}
 
 export function Login() {
-  const [email, setEmail] = useState('')
-  const [senha, setSenha] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
 
-  const navigator = useNavigation<AuthRoutesNavigator>()
+  const { Login } = useAuth();
+  const navigation = useNavigation<AuthRoutesNavigator>();
+
+  const { control, handleSubmit, formState: { errors } } = useForm<FormData>()
 
   const handleNovoCadastro = () => {
-    navigator.navigate('cadastro')
+    navigation.navigate('cadastro')
   }
 
+  async function handleLogin(data: FormData) {
+    try {
+      setIsLoading(true);
+      await Login(data.email, data.senha);
+
+    }
+    catch (error) {
+      setIsLoading(false);
+      const isAppError = error instanceof AppError;
+
+      const title = isAppError ? error.message : 'Não foi possível entrar. Tente novamente mais tarde.'
+      ToastShowError(title)
+    }
+  }
 
 
   return (
@@ -36,21 +61,46 @@ export function Login() {
           <Center my='$24'>
             <Logo />
             <Text color='$gray100'>
-
               Treine sua mente e seu corpo
             </Text>
 
           </Center>
 
           <Center gap='$2'>
-            <Heading color='$gray100'>Acesse a conta</Heading>
-            <InputText placeholder="E-mail" keyboardType="email-address" autoCapitalize="none"
-              value={email} onChangeText={setEmail}
+            <Heading color="$gray100" fontSize="$xl" mb={6} fontFamily="$heading">Acesse a conta</Heading>
+            <Controller
+              control={control}
+              name="email"
+              rules={{ required: 'Informe o e-mail' }}
+              render={({ field: { onChange } }) => (
+                <InputText
+                  placeholder="E-mail"
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  onChangeText={onChange}
+                  errorMessage={errors.email?.message}
+                />
+              )}
             />
-            <InputText placeholder="Senha" secureTextEntry
-              value={senha} onChangeText={setSenha}
+
+            <Controller
+              control={control}
+              name="senha"
+              rules={{ required: 'Informe a senha' }}
+              render={({ field: { onChange } }) => (
+                <InputText
+                  placeholder="Senha"
+                  secureTextEntry
+                  onChangeText={onChange}
+                  errorMessage={errors.senha?.message}
+                />
+              )}
             />
-            <Button titulo='Acessar' />
+            <Button
+              titulo="Acessar"
+              onPress={handleSubmit(handleLogin)}
+              isLoading={isLoading}
+            />
           </Center>
 
           <Center flex={1} justifyContent="flex-end" mt='$4'>

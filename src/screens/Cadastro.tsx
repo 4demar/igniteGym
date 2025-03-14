@@ -8,6 +8,12 @@ import * as yup from 'yup';
 import { yupResolver } from '@hookform/resolvers/yup';
 
 import { useForm, Controller } from "react-hook-form";
+import { api } from "@services/api";
+import { AppError } from "@utils/appError";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useAuth } from "@hooks/useAuth";
+import { useState } from "react";
+import { ToastShowError } from "@components/ToastShowError";
 
 type FormDataProps = {
   nome: string
@@ -27,6 +33,9 @@ const signUpSchema = yup.object({
 });
 
 export function Cadastro() {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const { Login } = useAuth()
 
   const { control, handleSubmit, formState: { errors } } = useForm<FormDataProps>({
     resolver: yupResolver(signUpSchema)
@@ -39,16 +48,18 @@ export function Cadastro() {
   }
 
   async function handleCriarConta({ nome, email, senha }: FormDataProps) {
-    const response = await fetch('http://192.168.0.10:3333/users', {
-      method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ name: nome, email: email, password: senha })
-    })
-    const data = await response.json()
-    console.log(data)
+    try {
+      setIsLoading(true)
+      await api.post('/users', { name: nome, email: email, password: senha })
+      await Login(email, senha)
+
+    } catch (error) {
+      setIsLoading(false);
+      const isAppError = error instanceof AppError;
+      const title = isAppError ? error.message : 'Não foi possível criar a conta. Tente novamente mais tarde'
+
+      ToastShowError(title)
+    }
   }
 
 
@@ -121,10 +132,11 @@ export function Cadastro() {
               )}
             />
 
-
-            <Button titulo='Criar e acessar' onPress={handleSubmit(handleCriarConta)} />
-
-
+            <Button
+              titulo='Criar e acessar'
+              onPress={handleSubmit(handleCriarConta)}
+              isLoading={isLoading}
+            />
 
           </Center>
           <Button titulo='Voltar' variant='outline' mt='$12' onPress={handleVoltar} />
@@ -133,3 +145,6 @@ export function Cadastro() {
     </ScrollView>
   )
 }
+
+
+
