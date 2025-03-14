@@ -38,7 +38,16 @@ export function Cadastro() {
     navigator.goBack()
   }
 
-  function handleCriarConta(data: FormDataProps) {
+  async function handleCriarConta({ nome, email, senha }: FormDataProps) {
+    const response = await fetch('http://192.168.0.10:3333/users', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ name: nome, email: email, password: senha })
+    })
+    const data = await response.json()
     console.log(data)
   }
 
