@@ -6,19 +6,48 @@ import BodySvg from '@assets/body.svg'
 import SeriesSvg from '@assets/series.svg'
 import RepeticaoSvg from '@assets/repetitions.svg'
 import { Button } from "@components/Button";
+import { useEffect, useState } from "react";
+import { AppError } from "@utils/appError";
+import { ToastShowError } from "@components/ToastShowError";
+import { api } from "@services/api";
+import { ExercicioDTO } from "../interfaces/exercicioDTO";
 
 type RouteParams = {
-  nomeExercicio: string
+  exercicioId: string
 }
 
 export function Exercicio() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [detalhes, setDetalhes] = useState<ExercicioDTO>({} as ExercicioDTO)
   const navigator = useNavigation()
+
+  //recuperar parametro passado na rota
   const route = useRoute()
-  const { nomeExercicio } = route.params as RouteParams
+  const { exercicioId } = route.params as RouteParams
 
   const handleVoltar = () => {
     navigator.goBack()
   }
+
+  async function buscarDetalhesExercicio() {
+    try {
+      setIsLoading(true);
+      const response = await api.get(`/exercises/${exercicioId}`);
+      setDetalhes(response.data);
+
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+      const title = isAppError ? error.message : 'Não foi possível carregar os detalhes do exercício';
+
+      ToastShowError(title)
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    buscarDetalhesExercicio()
+  }, [exercicioId])
 
   return (
     <VStack flex={1}>
@@ -39,13 +68,13 @@ export function Exercicio() {
             fontSize="$lg"
             flexShrink={1}
           >
-            {nomeExercicio}
+            {detalhes.name}
           </Heading>
           <HStack alignItems="center">
             <BodySvg />
 
             <Text color="$gray200" ml="$1" textTransform="capitalize">
-              grupoMuscular
+              {detalhes.group}
             </Text>
           </HStack>
         </HStack>
@@ -56,15 +85,17 @@ export function Exercicio() {
         contentContainerStyle={{ paddingBottom: 32 }}
       >
         <VStack p="$8">
-          <Image
-            source={{ uri: 'https://www.hola.com/horizon/original_aspect_ratio/4d8ac4079c2e-ejercicios-triceps5-a.jpg' }}
-            alt="Exercício"
-            mb="$3"
-            resizeMode="cover"
-            rounded="$lg"
-            w="$full"
-            h="$80"
-          />
+          <Box rounded="lg" mb={3} overflow="hidden">
+            <Image
+              source={{ uri: `${api.defaults.baseURL}/exercises/demo/${detalhes.demo}` }}
+              alt="Nome do exercício"
+              mb="$3"
+              resizeMode="cover"
+              rounded="$lg"
+              w="$full"
+              h="$80"
+            />
+          </Box>
 
           <Box bg="$gray600" rounded="$md" pb="$4" px="$4">
             <HStack
@@ -76,14 +107,14 @@ export function Exercicio() {
               <HStack>
                 <SeriesSvg />
                 <Text color="$gray200" ml="$2">
-                  serieExercicio
+                  {detalhes.series}
                 </Text>
               </HStack>
 
               <HStack>
                 <RepeticaoSvg />
                 <Text color="$gray200" ml="$2">
-                  repeticoesExercicio
+                  {detalhes.repetitions}
                 </Text>
               </HStack>
             </HStack>

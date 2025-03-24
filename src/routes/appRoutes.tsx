@@ -16,7 +16,7 @@ type AppRoutesProps = {
   historico: undefined;
   perfil: undefined
   exercicio: {
-    nomeExercicio: string
+    exercicioId: string
   };
 }
 
