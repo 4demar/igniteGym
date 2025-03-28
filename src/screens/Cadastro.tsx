@@ -58,7 +58,7 @@ export function Cadastro() {
       const isAppError = error instanceof AppError;
       const title = isAppError ? error.message : 'Não foi possível criar a conta. Tente novamente mais tarde'
 
-      ToastShowError(title)
+      ToastShowError('erro', title)
     }
   }
 

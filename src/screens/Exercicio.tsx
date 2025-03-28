@@ -11,15 +11,18 @@ import { AppError } from "@utils/appError";
 import { ToastShowError } from "@components/ToastShowError";
 import { api } from "@services/api";
 import { ExercicioDTO } from "../interfaces/exercicioDTO";
+import { Loading } from "@components/Loading";
+import { AppRoutesNavigator } from "@routes/appRoutes";
 
 type RouteParams = {
   exercicioId: string
 }
 
 export function Exercicio() {
+  const [sendingRegister, setSendingRegister] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [detalhes, setDetalhes] = useState<ExercicioDTO>({} as ExercicioDTO)
-  const navigator = useNavigation()
+  const navigator = useNavigation<AppRoutesNavigator>();
 
   //recuperar parametro passado na rota
   const route = useRoute()
@@ -39,9 +42,28 @@ export function Exercicio() {
       const isAppError = error instanceof AppError;
       const title = isAppError ? error.message : 'Não foi possível carregar os detalhes do exercício';
 
-      ToastShowError(title)
+      ToastShowError('erro', title)
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  async function handleRegistrarExercicio() {
+    try {
+      setSendingRegister(true);
+
+      await api.post('/history', { exercise_id: exercicioId });
+
+      ToastShowError('sucesso', 'Parabéns! Exercício registrado no seu histórico.')
+
+      navigator.navigate('historico');
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+      const title = isAppError ? error.message : 'Não foi possível registrar exercício.';
+
+      ToastShowError('erro', title)
+    } finally {
+      setSendingRegister(false);
     }
   }
 
@@ -80,49 +102,55 @@ export function Exercicio() {
         </HStack>
       </VStack>
 
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 32 }}
-      >
-        <VStack p="$8">
-          <Box rounded="lg" mb={3} overflow="hidden">
-            <Image
-              source={{ uri: `${api.defaults.baseURL}/exercises/demo/${detalhes.demo}` }}
-              alt="Nome do exercício"
-              mb="$3"
-              resizeMode="cover"
-              rounded="$lg"
-              w="$full"
-              h="$80"
-            />
-          </Box>
+      {isLoading ? <Loading /> :
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 32 }}
+        >
+          <VStack p="$8">
+            <Box rounded="lg" mb={3} overflow="hidden">
+              <Image
+                source={{ uri: `${api.defaults.baseURL}/exercises/demo/${detalhes.demo}` }}
+                alt="Nome do exercício"
+                mb="$3"
+                resizeMode="cover"
+                rounded="$lg"
+                w="$full"
+                h="$80"
+              />
+            </Box>
 
-          <Box bg="$gray600" rounded="$md" pb="$4" px="$4">
-            <HStack
-              alignItems="center"
-              justifyContent="space-around"
-              mb="$6"
-              mt="$5"
-            >
-              <HStack>
-                <SeriesSvg />
-                <Text color="$gray200" ml="$2">
-                  {detalhes.series}
-                </Text>
+            <Box bg="$gray600" rounded="$md" pb="$4" px="$4">
+              <HStack
+                alignItems="center"
+                justifyContent="space-around"
+                mb="$6"
+                mt="$5"
+              >
+                <HStack>
+                  <SeriesSvg />
+                  <Text color="$gray200" ml="$2">
+                    {detalhes.series}
+                  </Text>
+                </HStack>
+
+                <HStack>
+                  <RepeticaoSvg />
+                  <Text color="$gray200" ml="$2">
+                    {detalhes.repetitions}
+                  </Text>
+                </HStack>
               </HStack>
 
-              <HStack>
-                <RepeticaoSvg />
-                <Text color="$gray200" ml="$2">
-                  {detalhes.repetitions}
-                </Text>
-              </HStack>
-            </HStack>
-
-            <Button titulo="Marcar como realizado" />
-          </Box>
-        </VStack>
-      </ScrollView>
+              <Button
+                titulo="Marcar como realizado"
+                isLoading={sendingRegister}
+                onPress={handleRegistrarExercicio}
+              />
+            </Box>
+          </VStack>
+        </ScrollView>
+      }
     </VStack>
   )
 }

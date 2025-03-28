@@ -17,7 +17,7 @@ export function Home() {
   const [isLoading, setIsLoading] = useState(true);
   const [listaExercicios, setListaExercicios] = useState<ExercicioDTO[]>([])
   const [listaGrupoMuscular, setListaGrupoMuscular] = useState<string[]>([])
-  const [grupoSelecionado, setGrupoSelecionado] = useState('costa')
+  const [grupoSelecionado, setGrupoSelecionado] = useState('antebraço')
   const navigator = useNavigation<AppRoutesNavigator>()
 
   const handleAbrirExercicio = (id: string) => {
@@ -34,7 +34,7 @@ export function Home() {
       const isAppError = error instanceof AppError;
       const title = isAppError ? error.message : 'Não foi possível carregar os grupos musculares';
 
-      ToastShowError(title)
+      ToastShowError('erro', title)
     }
   }
 
@@ -49,7 +49,7 @@ export function Home() {
       const isAppError = error instanceof AppError;
       const title = isAppError ? error.message : 'Não foi possível carregar os exercícios';
 
-      ToastShowError(title)
+      ToastShowError('erro', title)
     } finally {
       setIsLoading(false);
     }

@@ -1,8 +1,9 @@
 import { Heading, HStack, VStack, Text } from "@gluestack-ui/themed";
 import { IDelathes } from "@screens/Historico";
+import { HistoricoDTO } from "../interfaces/historicoDTO";
 
 type props = {
-  exercicio: IDelathes
+  exercicio: HistoricoDTO
 }
 
 export function CardHistorico({ exercicio }: props) {
@@ -25,16 +26,16 @@ export function CardHistorico({ exercicio }: props) {
           textTransform="capitalize"
           numberOfLines={1}
         >
-          {exercicio.tipo}
+          {exercicio.group}
         </Heading>
 
         <Text color="$gray200" fontSize="$lg" numberOfLines={1}>
-          {exercicio.nome}
+          {exercicio.name}
         </Text>
       </VStack>
 
       <Text color="$gray200" fontSize="$md">
-        {exercicio.duracao}
+        {exercicio.hour}
       </Text>
     </HStack>
   )

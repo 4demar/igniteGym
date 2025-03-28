@@ -8,13 +8,58 @@ import * as FileSystem from 'expo-file-system'
 import { useState } from "react";
 import { Header } from "@components/Header";
 import { ToastMessage } from "@components/ToastMessage";
+import { Controller, useForm } from "react-hook-form";
+import * as yup from 'yup';
+import { yupResolver } from "@hookform/resolvers/yup";
+import { useAuth } from "@hooks/useAuth";
+import defaulUserPhotoImg from '@assets/userPhotoDefault.png';
+import { api } from "@services/api";
+
+const PHOTO_SIZE = 33;
+
+type FormDataProps = {
+  name: string;
+  email: string;
+  password: string;
+  old_password: string;
+  confirm_password: string;
+}
+
+const profileSchema = yup.object({
+  name: yup
+    .string()
+    .required('Informe o nome'),
+  password: yup
+    .string()
+    .required('Informe a senha.')
+    .min(6, 'A senha deve ter pelo menos 6 dígitos.')
+    .nullable()
+    .transform((value) => !!value ? value : null),
+  confirm_password: yup
+    .string()
+    .nullable()
+    .transform((value) => !!value ? value : null)
+    .oneOf([yup.ref('password'), null], 'A confirmação de senha não confere.')
+    .required('Informe a confirmação da senha.')
+})
 
 export function Perfil() {
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [photoIsLoading, setPhotoIsLoading] = useState(false);
   const [imagemUsuario, setImagemUsuario] = useState('http://github.com/4demar.png')
 
   const toast = useToast()
+  const { user, UpdateUserProfile } = useAuth();
+  const { control, handleSubmit, formState: { errors } } = useForm<FormDataProps>({
+    defaultValues: {
+      name: user.nome,
+      email: user.email,
+    },
+    resolver: yupResolver(profileSchema)
+  });
 
   const handleSelecionarImagem = async () => {
+    setPhotoIsLoading(true);
     try {
       const imagemSelecionada = await ImagePicker.launchImageLibraryAsync({
         mediaTypes: ['images'],
@@ -47,7 +92,13 @@ export function Perfil() {
     }
     catch (erro) {
       console.log(erro)
+
+    } finally {
+      setPhotoIsLoading(false)
     }
+  }
+
+  async function handleProfileUpdate(data: FormDataProps) {
   }
 
   return (
@@ -58,19 +109,56 @@ export function Perfil() {
 
       <ScrollView contentContainerStyle={{ paddingBottom: 36 }}>
         <Center mt='$6' px='$10'>
+          {/* {photoIsLoading ?
+            <Skeleton
+              w={PHOTO_SIZE}
+              h={PHOTO_SIZE}
+              rounded="full"
+              startColor="gray.500"
+              endColor="gray.400"
+            />
+            : */}
           <FotoUsuario
-            source={{ uri: imagemUsuario }}
+            source={
+              user.avatar
+                ? { uri: `${api.defaults.baseURL}/avatar/${user.avatar}` }
+                : defaulUserPhotoImg
+            }
             alt='foto do usuario'
-            size="xl"
+            size='xl'
           />
+          {/* } */}
           <TouchableOpacity onPress={handleSelecionarImagem}>
             <Text color='$green500' fontFamily="$heading" fontSize='$md' mt='$2' mb='$8'>
               Alterar foto
             </Text>
           </TouchableOpacity>
           <Center w='$full' gap='$2'>
-            <InputText placeholder='Nome' bg='$gray600' />
-            <InputText value='junioor.aguia@gmail.com' bg='$gray600' readOnly />
+            <Controller
+              control={control}
+              name="name"
+              render={({ field: { value, onChange } }) => (
+                <InputText
+                  bg="gray.600"
+                  placeholder='Nome'
+                  onChangeText={onChange}
+                  value={value}
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="email"
+              render={({ field: { value, onChange } }) => (
+                <InputText
+                  bg="gray.600"
+                  placeholder="E-mail"
+                  onChangeText={onChange}
+                  value={value}
+                  readOnly
+                />
+              )}
+            />
           </Center>
 
           <Heading
@@ -85,11 +173,52 @@ export function Perfil() {
           </Heading>
           <Center w="$full" gap="$2">
 
-            <InputText placeholder="Senha antiga" bg="$gray600" secureTextEntry />
-            <InputText placeholder="Nova senha" bg="$gray600" secureTextEntry />
-            <InputText placeholder="Confirmar senha" bg="$gray600" secureTextEntry />
+            <Controller
+              control={control}
+              name="old_password"
+              render={({ field: { onChange } }) => (
+                <InputText
+                  bg="gray.600"
+                  placeholder="Senha antiga"
+                  secureTextEntry
+                  onChangeText={onChange}
+                />
+              )}
+            />
 
-            <Button titulo="Atualizar" />
+            <Controller
+              control={control}
+              name="password"
+              render={({ field: { onChange } }) => (
+                <InputText
+                  bg="gray.600"
+                  placeholder="Nova senha"
+                  secureTextEntry
+                  onChangeText={onChange}
+                  errorMessage={errors.password?.message}
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="confirm_password"
+              render={({ field: { onChange } }) => (
+                <InputText
+                  bg="gray.600"
+                  placeholder="Confirme a nova senha"
+                  secureTextEntry
+                  onChangeText={onChange}
+                  errorMessage={errors.confirm_password?.message}
+                />
+              )}
+            />
+
+            <Button
+              titulo="Atualizar"
+              mt={4}
+              onPress={handleSubmit(handleProfileUpdate)}
+              isLoading={isUpdating}
+            />
           </Center>
         </Center>
 
