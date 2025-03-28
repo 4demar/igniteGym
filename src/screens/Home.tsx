@@ -6,12 +6,11 @@ import { Heading, HStack, VStack, Text, useToast } from "@gluestack-ui/themed";
 import { CardExercicio } from "@components/CardExercicio";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { AppRoutesNavigator } from "@routes/appRoutes";
-
 import { api } from '@services/api';
-import { Loading } from "@components/Loading";
 import { AppError } from "@utils/appError";
 import { ToastShowError } from "@components/ToastShowError";
 import { ExercicioDTO } from "../interfaces/exercicioDTO";
+import { Loading } from "@components/Loading";
 
 
 export function Home() {
@@ -81,7 +80,6 @@ export function Home() {
         contentContainerStyle={{ paddingHorizontal: 20 }}
         style={{ marginVertical: 20, maxHeight: 44, minHeight: 44 }}
       />
-
       {
         isLoading ? <Loading /> :
           <VStack px='$8' flex={1}>
