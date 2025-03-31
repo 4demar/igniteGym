@@ -10,7 +10,7 @@ import { useState } from "react";
 import { useAuth } from "@hooks/useAuth";
 import { Controller, useForm } from "react-hook-form";
 import { AppError } from "@utils/appError";
-import { ToastShowError } from "@components/ToastShowError";
+import { ToastShow } from "@components/ToastShow";
 
 type FormData = {
   email: string;
@@ -40,7 +40,7 @@ export function Login() {
       const isAppError = error instanceof AppError;
 
       const title = isAppError ? error.message : 'Não foi possível entrar. Tente novamente mais tarde.'
-      ToastShowError('erro', title)
+      ToastShow('erro', title)
     }
   }
 

@@ -8,7 +8,7 @@ import RepeticaoSvg from '@assets/repetitions.svg'
 import { Button } from "@components/Button";
 import { useEffect, useState } from "react";
 import { AppError } from "@utils/appError";
-import { ToastShowError } from "@components/ToastShowError";
+import { ToastShow } from "@components/ToastShow";
 import { api } from "@services/api";
 import { ExercicioDTO } from "../interfaces/exercicioDTO";
 import { Loading } from "@components/Loading";
@@ -42,7 +42,7 @@ export function Exercicio() {
       const isAppError = error instanceof AppError;
       const title = isAppError ? error.message : 'Não foi possível carregar os detalhes do exercício';
 
-      ToastShowError('erro', title)
+      ToastShow('erro', title)
     } finally {
       setIsLoading(false);
     }
@@ -54,14 +54,14 @@ export function Exercicio() {
 
       await api.post('/history', { exercise_id: exercicioId });
 
-      ToastShowError('sucesso', 'Parabéns! Exercício registrado no seu histórico.')
+      ToastShow('sucesso', 'Parabéns! Exercício registrado no seu histórico.')
 
       navigator.navigate('historico');
     } catch (error) {
       const isAppError = error instanceof AppError;
       const title = isAppError ? error.message : 'Não foi possível registrar exercício.';
 
-      ToastShowError('erro', title)
+      ToastShow('erro', title)
     } finally {
       setSendingRegister(false);
     }

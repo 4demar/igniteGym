@@ -8,7 +8,7 @@ import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { AppRoutesNavigator } from "@routes/appRoutes";
 import { api } from '@services/api';
 import { AppError } from "@utils/appError";
-import { ToastShowError } from "@components/ToastShowError";
+import { ToastShow } from "@components/ToastShow";
 import { ExercicioDTO } from "../interfaces/exercicioDTO";
 import { Loading } from "@components/Loading";
 
@@ -34,7 +34,7 @@ export function Home() {
       const isAppError = error instanceof AppError;
       const title = isAppError ? error.message : 'Não foi possível carregar os grupos musculares';
 
-      ToastShowError('erro', title)
+      ToastShow('erro', title)
     }
   }
 
@@ -49,7 +49,7 @@ export function Home() {
       const isAppError = error instanceof AppError;
       const title = isAppError ? error.message : 'Não foi possível carregar os exercícios';
 
-      ToastShowError('erro', title)
+      ToastShow('erro', title)
     } finally {
       setIsLoading(false);
     }

@@ -8,21 +8,23 @@ import * as FileSystem from 'expo-file-system'
 import { useState } from "react";
 import { Header } from "@components/Header";
 import { ToastMessage } from "@components/ToastMessage";
-import { Controller, useForm } from "react-hook-form";
+import { Controller, Resolver, useForm } from "react-hook-form";
 import * as yup from 'yup';
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useAuth } from "@hooks/useAuth";
 import defaulUserPhotoImg from '@assets/userPhotoDefault.png';
 import { api } from "@services/api";
+import { ToastShow } from "@components/ToastShow";
+import { AppError } from "@utils/appError";
 
 const PHOTO_SIZE = 33;
 
 type FormDataProps = {
   name: string;
   email: string;
-  password: string;
+  password: string | null;
   old_password: string;
-  confirm_password: string;
+  confirm_password?: string | null | undefined;
 }
 
 const profileSchema = yup.object({
@@ -40,8 +42,16 @@ const profileSchema = yup.object({
     .nullable()
     .transform((value) => !!value ? value : null)
     .oneOf([yup.ref('password'), null], 'A confirmação de senha não confere.')
-    .required('Informe a confirmação da senha.')
+    .when('password', {
+      is: (Field: any) => Field,
+      then: (schema) => schema
+        .nullable()
+        .required('Informe a confirmação da senha.')
+        .transform((value) => !!value ? value : null)
+    }),
 })
+
+
 
 export function Perfil() {
   const [isUpdating, setIsUpdating] = useState(false);
@@ -50,12 +60,13 @@ export function Perfil() {
 
   const toast = useToast()
   const { user, UpdateUserProfile } = useAuth();
+
   const { control, handleSubmit, formState: { errors } } = useForm<FormDataProps>({
     defaultValues: {
       name: user.nome,
-      email: user.email,
-    },
-    resolver: yupResolver(profileSchema)
+      email: user.email
+    }
+    //resolver: yupResolver(profileSchema)
   });
 
   const handleSelecionarImagem = async () => {
@@ -99,7 +110,27 @@ export function Perfil() {
   }
 
   async function handleProfileUpdate(data: FormDataProps) {
+    try {
+      setIsUpdating(true);
+
+      const userUpdated = user;
+      userUpdated.nome = data.name;
+
+      await api.put('/users', data);
+
+      await UpdateUserProfile(userUpdated);
+      ToastShow('sucesso', 'Perfil atualizado com sucesso!')
+
+    } catch (error) {
+      const isAppError = error instanceof AppError;
+      const title = isAppError ? error.message : 'Não foi possível atualizar os dados. Tente novamente mais tarde.';
+
+      ToastShow('erro', title)
+    } finally {
+      setIsUpdating(false);
+    }
   }
+
 
   return (
     <VStack flex={1}>
@@ -143,6 +174,7 @@ export function Perfil() {
                   placeholder='Nome'
                   onChangeText={onChange}
                   value={value}
+                  errorMessage={errors.name?.message}
                 />
               )}
             />

@@ -1,6 +1,6 @@
 import { CardHistorico } from "@components/CardHistorico";
 import { Header } from "@components/Header";
-import { ToastShowError } from "@components/ToastShowError";
+import { ToastShow } from "@components/ToastShow";
 import { Heading, Text, VStack } from "@gluestack-ui/themed";
 import { useFocusEffect } from "@react-navigation/native";
 import { api } from "@services/api";
@@ -37,7 +37,7 @@ export function Historico() {
       const isAppError = error instanceof AppError;
       const title = isAppError ? error.message : 'Não foi possível carregar os detalhes do exercício';
 
-      ToastShowError('erro', title)
+      ToastShow('erro', title)
     } finally {
       setIsLoading(false);
     }

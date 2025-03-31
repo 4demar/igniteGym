@@ -13,7 +13,7 @@ import { AppError } from "@utils/appError";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "@hooks/useAuth";
 import { useState } from "react";
-import { ToastShowError } from "@components/ToastShowError";
+import { ToastShow } from "@components/ToastShow";
 
 type FormDataProps = {
   nome: string
@@ -58,7 +58,7 @@ export function Cadastro() {
       const isAppError = error instanceof AppError;
       const title = isAppError ? error.message : 'Não foi possível criar a conta. Tente novamente mais tarde'
 
-      ToastShowError('erro', title)
+      ToastShow('erro', title)
     }
   }
 

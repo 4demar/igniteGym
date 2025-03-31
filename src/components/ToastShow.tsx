@@ -1,6 +1,6 @@
 import { SafeAreaView, Toast, ToastTitle, useToast } from "@gluestack-ui/themed";
 
-export function ToastShowError(tipo: string, titulo: string) {
+export function ToastShow(tipo: string, titulo: string) {
 
   const colorToast = tipo === 'sucesso' ? '$green500' : '$red500'
 
