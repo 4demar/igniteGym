@@ -4,6 +4,7 @@ import { LogOut } from 'lucide-react-native'
 import { useAuth } from "@hooks/useAuth";
 import { FotoUsuario } from "./FotoUsuario";
 import FotoDefaultUser from '@assets/userPhotoDefault.png'
+import { api } from "@services/api";
 
 //passando o componente LogOut(icone externo) para dentro do Icon do gluestack >> as={LogOut}
 
@@ -16,7 +17,9 @@ export function HomeHeader() {
     <HStack bg='$gray600' pt='$16' pb='$5' px='$8' alignItems="center" gap='$4'>
       <FotoUsuario
         alt='imagem do usuario' w='$16' h='$16'
-        source={user.avatar ? { uri: user.avatar } : FotoDefaultUser}
+        source={user.avatar
+          ? { uri: `${api.defaults.baseURL}/avatar/${user.avatar}` }
+          : FotoDefaultUser}
         defaultSource={FotoDefaultUser}
       />
       <VStack flex={1}>

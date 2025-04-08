@@ -12,10 +12,10 @@ import { Controller, Resolver, useForm } from "react-hook-form";
 import * as yup from 'yup';
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useAuth } from "@hooks/useAuth";
-import defaulUserPhotoImg from '@assets/userPhotoDefault.png';
 import { api } from "@services/api";
 import { ToastShow } from "@components/ToastShow";
 import { AppError } from "@utils/appError";
+import FotoDefaultUser from '@assets/userPhotoDefault.png'
 
 const PHOTO_SIZE = 33;
 
@@ -51,12 +51,9 @@ const profileSchema = yup.object({
     }),
 })
 
-
-
 export function Perfil() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [photoIsLoading, setPhotoIsLoading] = useState(false);
-  const [imagemUsuario, setImagemUsuario] = useState('http://github.com/4demar.png')
 
   const toast = useToast()
   const { user, UpdateUserProfile } = useAuth();
@@ -81,25 +78,42 @@ export function Perfil() {
 
       if (imagemSelecionada.canceled) return
       const uriImagem = imagemSelecionada.assets[0].uri
+
       //hack para pegar o tamanho da imagem
       const infoImagem = (await FileSystem.getInfoAsync(uriImagem) as { size: number })
 
       //conta para verificar se é maior de 5mb
-      if (infoImagem.size && (infoImagem.size / 1024 / 1024) > 1) {
-        return toast.show({
-          placement: 'top',
-          render: ({ id }) => (
-            <ToastMessage
-              id={id}
-              title="Imagem muito grande!"
-              action="error"
-              onClose={() => toast.close(id)}
-            />
-          )
-        })
+      if (infoImagem.size && (infoImagem.size / 1024 / 1024) > 2) {
+        return ToastShow('erro', 'Imagem muito grande!')
       }
 
-      setImagemUsuario(uriImagem);
+
+      const fileExtension = uriImagem.split('.').pop();
+
+      const photoFile = {
+        name: `${user.nome}.${fileExtension}`.toLowerCase(),
+        uri: uriImagem,
+        type: `${imagemSelecionada.assets[0].type}/${fileExtension}`
+      } as any;
+
+      const userPhotoUploadForm = new FormData();
+
+      userPhotoUploadForm.append('avatar', photoFile);
+
+      const avatarUpdtedResponse = await api.patch('/users/avatar', userPhotoUploadForm, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      const userUpdated = user;
+
+      userUpdated.avatar = avatarUpdtedResponse.data.avatar;
+
+      await UpdateUserProfile(userUpdated);
+
+      ToastShow('sucesso', 'Foto atualizada')
+
     }
     catch (erro) {
       console.log(erro)
@@ -153,7 +167,7 @@ export function Perfil() {
             source={
               user.avatar
                 ? { uri: `${api.defaults.baseURL}/avatar/${user.avatar}` }
-                : defaulUserPhotoImg
+                : FotoDefaultUser
             }
             alt='foto do usuario'
             size='xl'
